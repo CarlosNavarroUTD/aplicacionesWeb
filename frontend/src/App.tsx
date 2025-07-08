@@ -1,35 +1,44 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
 
-function App() {
-  const [count, setCount] = useState(0)
 
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import Dashboard from './module/dashboard/Dashboard';
+
+import UserForm from './module/users/UserForm';
+import ProductTable from './module/product/ProductoData';
+import OrderTable from './module/order/OrderData';
+import Reportes from './module/report/Reports';
+import { AuthRoutes } from './module/auth/AuthRoutes';
+import Login from './module/auth/Login';
+
+const DashboardWelcome = () => (
+  <div style={{ padding: '24px' }}>
+    <h1>Bienvenida al Dashboard</h1>
+  </div>
+);
+
+const App: React.FC = () => {
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    <BrowserRouter>
+      <Routes>
+        {/* Login pública */}
+        <Route path="/login" element={<Login />} />
 
-export default App
+        {/* Redirección inicial */}
+        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+
+        {/* Rutas protegidas */}
+        <Route element={<AuthRoutes />}>
+          <Route path="/dashboard" element={<Dashboard />}>
+            <Route index element={<DashboardWelcome />} />
+            <Route path="users" element={<UserForm />} />
+            <Route path="products" element={<ProductTable />} />
+            <Route path="orders" element={<OrderTable />} />
+            <Route path="report" element={<Reportes />} />
+          </Route>
+        </Route>
+      </Routes>
+    </BrowserRouter>
+  );
+};
+
+export default App;

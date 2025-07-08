@@ -6,26 +6,39 @@ import dayjs from "dayjs";
 import { User } from "../models/User";
 import bcrypt from "bcrypt";
 
-export const login = (req: Request, res: Response) => {
-    let name: string = "Carlos";
-
+export const login = async (req: Request, res: Response) => {
     const { username, password } = req.body;
 
-    if (username !== 'Admin' || password !== '123456789') {
-        return res.status(401).json({
-            message: "Credenciales incorrectas"
+    try {
+        // Buscar el usuario activo por nombre
+        const user = await User.findOne({ username, status: true });
+        if (!user) {
+            return res.status(401).json({ message: "Usuario no encontrado o inactivo" });
+        }
+
+        // Comparar contraseña hasheada
+        const passwordMatch = await bcrypt.compare(password, user.password);
+        if (!passwordMatch) {
+            return res.status(401).json({ message: "Contraseña incorrecta" });
+        }
+
+        const userId = user._id.toString();
+        const accesToken = generateAccessToken(userId);
+
+        cache.set(userId, accesToken, 60 * 15);
+
+        return res.json({
+            message: 'Login exitoso',
+            accesToken,
+            userId,
+            role: user.role
         });
+    } catch (error) {
+        console.error("Error en login:", error);
+        return res.status(500).json({ error: "Error interno del servidor" });
     }
-
-    const userId = 'abc123';
-    const accesToken = generateAccessToken(userId);
-    cache.set(userId, accesToken, 60 * 15);
-
-    return res.json({
-        message: 'login',
-        accesToken
-    });
 };
+
 
 export const getTime = (req: Request, res: Response) => {
     const { userId } = req.params;

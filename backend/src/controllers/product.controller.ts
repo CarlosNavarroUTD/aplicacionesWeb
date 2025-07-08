@@ -1,10 +1,6 @@
 import { Request, Response } from "express"
-import { Order } from '../models/Order'
-import {generateAccessToken} from '../utils/generateToken'
-import {cache} from '../utils/cache'
-import dayjs from "dayjs"
-import { User } from "../models/User"
-import bcrypt from "bcrypt";
+
+import { Product } from "../models/Product"
 
 
 
